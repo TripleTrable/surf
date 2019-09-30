@@ -76,6 +76,16 @@ static WebKitFindOptions findopts = WEBKIT_FIND_OPTIONS_CASE_INSENSITIVE |
         } \
 }
 
+#define SELNAV { \
+	.v = (char *[]){ "/bin/sh", "-c", \
+		"prop=\"`xprop -id $0 _SURF_HIST" \
+		" | sed -e 's/^.[^\"]*\"//' -e 's/\"$//' -e 's/\\\\\\n/\\n/g'" \
+		" | dmenu -i -l 10`\"" \
+		" && xprop -id $0 -f _SURF_NAV 8s -set _SURF_NAV \"$prop\"", \
+		winid, NULL \
+	} \
+}
+
 /* DOWNLOAD(URI, referer) */
 #define DOWNLOAD(u, r) { \
         .v = (const char *[]){ "st", "-e", "/bin/sh", "-c",\
@@ -129,6 +139,7 @@ static SiteSpecific certs[] = {
  * edit the CLEANMASK() macro.
  */
 static Key keys[] = {
+<<<<<<< ours
 	/* modifier              keyval          function    arg */
 	{ MODKEY,                GDK_KEY_g,      spawn,      SETPROP("_SURF_URI", "_SURF_GO", PROMPT_GO) },
 	{ MODKEY,                GDK_KEY_f,      spawn,      SETPROP("_SURF_FIND", "_SURF_FIND", PROMPT_FIND) },
@@ -180,6 +191,53 @@ static Key keys[] = {
 	{ MODKEY|GDK_SHIFT_MASK, GDK_KEY_b,      toggle,     { .i = ScrollBars } },
 	{ MODKEY|GDK_SHIFT_MASK, GDK_KEY_t,      toggle,     { .i = StrictTLS } },
 	{ MODKEY|GDK_SHIFT_MASK, GDK_KEY_m,      toggle,     { .i = Style } },
+=======
+    /* modifier	            keyval      function    arg             Focus */
+    { MODKEY|GDK_SHIFT_MASK,GDK_r,      reload,     { .b = TRUE } },
+    { MODKEY,               GDK_r,      reload,     { .b = FALSE } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_p,      print,      { 0 } },
+
+    { MODKEY,               GDK_p,      clipboard,  { .b = TRUE } },
+    { MODKEY,               GDK_y,      clipboard,  { .b = FALSE } },
+
+    { MODKEY|GDK_SHIFT_MASK,GDK_j,      zoom,       { .i = -1 } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_k,      zoom,       { .i = +1 } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_q,      zoom,       { .i = 0  } },
+    { MODKEY,               GDK_minus,  zoom,       { .i = -1 } },
+    { MODKEY,               GDK_plus,   zoom,       { .i = +1 } },
+
+    { MODKEY,               GDK_l,      navigate,   { .i = +1 } },
+    { MODKEY,               GDK_h,      navigate,   { .i = -1 } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_h,      selhist,    SELNAV },
+
+    { MODKEY,               GDK_j,      scroll_v,   { .i = +1 } },
+    { MODKEY,               GDK_k,      scroll_v,   { .i = -1 } },
+    { MODKEY,               GDK_b,      scroll_v,   { .i = -10000 } },
+    { MODKEY,               GDK_space,  scroll_v,   { .i = +10000 } },
+    { MODKEY,               GDK_i,      scroll_h,   { .i = +1 } },
+    { MODKEY,               GDK_u,      scroll_h,   { .i = -1 } },
+
+    { 0,                    GDK_F11,    fullscreen, { 0 } },
+    { 0,                    GDK_Escape, stop,       { 0 } },
+    { MODKEY,               GDK_o,      source,     { 0 } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_o,      inspector,  { 0 } },
+
+    { MODKEY,               GDK_g,      spawn,      SETPROP("_SURF_URI", "_SURF_GO") },
+    { MODKEY,               GDK_f,      spawn,      SETPROP("_SURF_FIND", "_SURF_FIND") },
+    { MODKEY,               GDK_slash,  spawn,      SETPROP("_SURF_FIND", "_SURF_FIND") },
+
+    { MODKEY,               GDK_n,      find,       { .b = TRUE } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_n,      find,       { .b = FALSE } },
+
+    { MODKEY|GDK_SHIFT_MASK,GDK_c,      toggle,     { .v = "enable-caret-browsing" } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_i,      toggle,     { .v = "auto-load-images" } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_s,      toggle,     { .v = "enable-scripts" } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_v,      toggle,     { .v = "enable-plugins" } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_a,      togglecookiepolicy, { 0 } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_m,      togglestyle, { 0 } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_b,      togglescrollbars, { 0 } },
+    { MODKEY|GDK_SHIFT_MASK,GDK_g,      togglegeolocation, { 0 } },
+>>>>>>> theirs
 };
 
 /* button definitions */

@@ -35,8 +35,12 @@
 #define LENGTH(x)               (sizeof(x) / sizeof(x[0]))
 #define CLEANMASK(mask)         (mask & (MODKEY|GDK_SHIFT_MASK))
 
+<<<<<<< ours
 enum { AtomFind, AtomGo, AtomUri, AtomLast };
 
+=======
+enum { AtomFind, AtomGo, AtomUri, AtomHist, AtomNav, AtomLast };
+>>>>>>> theirs
 enum {
 	OnDoc   = WEBKIT_HIT_TEST_RESULT_CONTEXT_DOCUMENT,
 	OnLink  = WEBKIT_HIT_TEST_RESULT_CONTEXT_LINK,
@@ -147,12 +151,93 @@ static void sigchld(int unused);
 static void sighup(int unused);
 static char *buildfile(const char *path);
 static char *buildpath(const char *path);
+<<<<<<< ours
 static char *untildepath(const char *path);
 static const char *getuserhomedir(const char *user);
 static const char *getcurrentuserhomedir(void);
 static Client *newclient(Client *c);
 static void loaduri(Client *c, const Arg *a);
 static const char *geturi(Client *c);
+=======
+static gboolean buttonrelease(WebKitWebView *web, GdkEventButton *e, Client *c);
+static void cleanup(void);
+static void clipboard(Client *c, const Arg *arg);
+
+/* Cookiejar implementation */
+static void cookiejar_changed(SoupCookieJar *self, SoupCookie *old_cookie,
+		SoupCookie *new_cookie);
+static void cookiejar_finalize(GObject *self);
+static SoupCookieJarAcceptPolicy cookiepolicy_get(void);
+static SoupCookieJar *cookiejar_new(const char *filename, gboolean read_only,
+		SoupCookieJarAcceptPolicy policy);
+static void cookiejar_set_property(GObject *self, guint prop_id,
+		const GValue *value, GParamSpec *pspec);
+static char cookiepolicy_set(const SoupCookieJarAcceptPolicy p);
+
+static char *copystr(char **str, const char *src);
+static WebKitWebView *createwindow(WebKitWebView *v, WebKitWebFrame *f,
+		Client *c);
+static gboolean decidedownload(WebKitWebView *v, WebKitWebFrame *f,
+		WebKitNetworkRequest *r, gchar *m,  WebKitWebPolicyDecision *p,
+		Client *c);
+static gboolean decidewindow(WebKitWebView *v, WebKitWebFrame *f,
+		WebKitNetworkRequest *r, WebKitWebNavigationAction *n,
+		WebKitWebPolicyDecision *p, Client *c);
+static gboolean deletion_interface(WebKitWebView *view,
+		WebKitDOMHTMLElement *arg1, Client *c);
+static void destroyclient(Client *c);
+static void destroywin(GtkWidget* w, Client *c);
+static void die(const char *errstr, ...);
+static void eval(Client *c, const Arg *arg);
+static void find(Client *c, const Arg *arg);
+static void fullscreen(Client *c, const Arg *arg);
+static void geopolicyrequested(WebKitWebView *v, WebKitWebFrame *f,
+		WebKitGeolocationPolicyDecision *d, Client *c);
+static const char *getatom(Client *c, int a);
+static void gettogglestat(Client *c);
+static void getpagestat(Client *c);
+static char *geturi(Client *c);
+static gchar *getstyle(const char *uri);
+
+static void handleplumb(Client *c, WebKitWebView *w, const gchar *uri);
+
+static gboolean initdownload(WebKitWebView *v, WebKitDownload *o, Client *c);
+
+static void inspector(Client *c, const Arg *arg);
+static WebKitWebView *inspector_new(WebKitWebInspector *i, WebKitWebView *v,
+		Client *c);
+static gboolean inspector_show(WebKitWebInspector *i, Client *c);
+static gboolean inspector_close(WebKitWebInspector *i, Client *c);
+static void inspector_finished(WebKitWebInspector *i, Client *c);
+
+static gboolean keypress(GtkAccelGroup *group,
+		GObject *obj, guint key, GdkModifierType mods,
+		Client *c);
+static void linkhover(WebKitWebView *v, const char* t, const char* l,
+		Client *c);
+static void loadstatuschange(WebKitWebView *view, GParamSpec *pspec,
+		Client *c);
+static void loaduri(Client *c, const Arg *arg);
+static void navigate(Client *c, const Arg *arg);
+static void selhist(Client *c, const Arg *arg);
+static void navhist(Client *c, const Arg *arg);
+static Client *newclient(void);
+static void newwindow(Client *c, const Arg *arg, gboolean noembed);
+static void pasteuri(GtkClipboard *clipboard, const char *text, gpointer d);
+static gboolean contextmenu(WebKitWebView *view, GtkWidget *menu,
+		WebKitHitTestResult *target, gboolean keyboard, Client *c);
+static void menuactivate(GtkMenuItem *item, Client *c);
+static void print(Client *c, const Arg *arg);
+static GdkFilterReturn processx(GdkXEvent *xevent, GdkEvent *event,
+		gpointer d);
+static void progresschange(WebKitWebView *view, GParamSpec *pspec, Client *c);
+static void linkopen(Client *c, const Arg *arg);
+static void linkopenembed(Client *c, const Arg *arg);
+static void reload(Client *c, const Arg *arg);
+static void scroll_h(Client *c, const Arg *arg);
+static void scroll_v(Client *c, const Arg *arg);
+static void scroll(GtkAdjustment *a, const Arg *arg);
+>>>>>>> theirs
 static void setatom(Client *c, int a, const char *v);
 static const char *getatom(Client *c, int a);
 static void updatetitle(Client *c);
@@ -1032,6 +1117,7 @@ newwindow(Client *c, const Arg *a, int noembed)
 	spawn(c, &arg);
 }
 
+<<<<<<< ours
 void
 spawn(Client *c, const Arg *a)
 {
@@ -1047,6 +1133,73 @@ spawn(Client *c, const Arg *a)
 		exit(1);
 	}
 }
+=======
+static void
+selhist(Client *c, const Arg *arg) {
+	WebKitWebBackForwardList *lst;
+	WebKitWebHistoryItem *cur;
+	gint i;
+	gchar *out;
+	gchar *tmp;
+	gchar *line;
+
+	out = g_strdup("");
+
+	if(!(lst = webkit_web_view_get_back_forward_list(c->view)))
+		return;
+
+	for(i = webkit_web_back_forward_list_get_back_length(lst); i > 0; i--) {
+		if(!(cur = webkit_web_back_forward_list_get_nth_item(lst, -i)))
+			break;
+		line = g_strdup_printf("%d: %s\n", -i,
+		                       webkit_web_history_item_get_original_uri(cur));
+		tmp = g_strconcat(out, line, NULL);
+		g_free(out);
+		out = tmp;
+	}
+
+	if((cur = webkit_web_back_forward_list_get_nth_item(lst, 0))) {
+		line = g_strdup_printf("%d: %s", 0,
+		                       webkit_web_history_item_get_original_uri(cur));
+		tmp = g_strconcat(out, line, NULL);
+		g_free(out);
+		out = tmp;
+	}
+
+	for(i = 1; i <= webkit_web_back_forward_list_get_forward_length(lst); i++) {
+		if(!(cur = webkit_web_back_forward_list_get_nth_item(lst, i)))
+			break;
+		line = g_strdup_printf("\n%d: %s", i,
+		                       webkit_web_history_item_get_original_uri(cur));
+		tmp = g_strconcat(out, line, NULL);
+		g_free(out);
+		out = tmp;
+	}
+
+	setatom(c, AtomHist, out);
+	g_free(out);
+	spawn(c, arg);
+}
+
+static void
+navhist(Client *c, const Arg *arg) {
+	Arg a = { .i = atoi(arg->v) };
+	navigate(c, &a);
+}
+
+static Client *
+newclient(void) {
+	Client *c;
+	WebKitWebSettings *settings;
+	WebKitWebFrame *frame;
+	GdkGeometry hints = { 1, 1 };
+	GdkScreen *screen;
+	gdouble dpi;
+	char *ua;
+
+	if(!(c = calloc(1, sizeof(Client))))
+		die("Cannot malloc!\n");
+>>>>>>> theirs
 
 void
 destroyclient(Client *c)
@@ -1231,8 +1384,19 @@ readpipe(GIOChannel *s, GIOCondition ioc, gpointer unused)
 		break;
 	}
 
+<<<<<<< ours
 	return TRUE;
 }
+=======
+	setatom(c, AtomFind, "");
+	setatom(c, AtomUri, "about:blank");
+	setatom(c, AtomHist, "");
+	if(hidebackground)
+		webkit_web_view_set_transparent(c->view, TRUE);
+
+	c->next = clients;
+	clients = c;
+>>>>>>> theirs
 
 void
 initwebextensions(WebKitWebContext *wc, Client *c)
@@ -1316,6 +1480,9 @@ processx(GdkXEvent *e, GdkEvent *event, gpointer d)
 				loaduri(c, &a);
 
 				return GDK_FILTER_REMOVE;
+			} else if(ev->atom == atoms[AtomNav]) {
+				arg.v = getatom(c, AtomNav);
+				navhist(c, &arg);
 			}
 		}
 	}
@@ -1406,11 +1573,20 @@ showview(WebKitWebView *v, Client *c)
 	setatom(c, AtomUri, "about:blank");
 }
 
+<<<<<<< ours
 GtkWidget *
 createwindow(Client *c)
 {
 	char *wmstr;
 	GtkWidget *w;
+=======
+	/* atoms */
+	atoms[AtomFind] = XInternAtom(dpy, "_SURF_FIND", False);
+	atoms[AtomGo] = XInternAtom(dpy, "_SURF_GO", False);
+	atoms[AtomUri] = XInternAtom(dpy, "_SURF_URI", False);
+	atoms[AtomHist] = XInternAtom(dpy, "_SURF_HIST", False);
+	atoms[AtomNav] = XInternAtom(dpy, "_SURF_NAV", False);
+>>>>>>> theirs
 
 	if (embed) {
 		w = gtk_plug_new(embed);
