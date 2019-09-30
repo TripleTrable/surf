@@ -76,6 +76,16 @@ static WebKitFindOptions findopts = WEBKIT_FIND_OPTIONS_CASE_INSENSITIVE |
         } \
 }
 
+#define SELNAV { \
+    .v = (char *[]){ "/bin/sh", "-c", \
+               "prop=\"`xprop -id $0 _SURF_HIST" \
+               " | sed -e 's/^.[^\"]*\"//' -e 's/\"$//' -e 's/\\\\\\n/\\n/g'" \
+               " | dmenu -i -l 10`\"" \
+               " && xprop -id $0 -f _SURF_NAV 8s -set _SURF_NAV \"$prop\"", \
+               winid, NULL \
+    }\
+}
+                                    
 /* DOWNLOAD(URI, referer) */
 #define DOWNLOAD(u, r) { \
         .v = (const char *[]){ "st", "-e", "/bin/sh", "-c",\
@@ -142,6 +152,7 @@ static Key keys[] = {
 
 	{ MODKEY,                GDK_KEY_l,      navigate,   { .i = +1 } },
 	{ MODKEY,                GDK_KEY_h,      navigate,   { .i = -1 } },
+    { MODKEY|GDK_SHIFT_MASK, GDK_KEY_h,      selhist,    SELNAV },
 
 	/* vertical and horizontal scrolling, in viewport percentage */
 	{ MODKEY,                GDK_KEY_j,      scrollv,    { .i = +10 } },
